@@ -1,0 +1,19 @@
+Useful Links:
+https://www.digitalocean.com/community/tutorials/introduction-to-computer-vision-in-javascript-using-opencvjs
+https://www.pyimagesearch.com/2016/03/28/measuring-size-of-objects-in-an-image-with-opencv/#:~:text=Measuring%20the%20size%20of%20objects%20in%20an%20image%20with%20OpenCV,pixels%20per%20a%20given%20metric.
+https://www.pyimagesearch.com/2015/05/04/target-acquired-finding-targets-in-drone-and-quadcopter-video-streams-using-python-and-opencv/
+
+
+https://www.cs.rutgers.edu/~elgammal/classes/cs534/lectures/Calibration.pdf
+https://www.uniquesoftwaredev.com/calculating-the-size-of-objects-in-photos-with-computer-vision/
+
+
+Documentation:
+https://docs.opencv.org/3.4/d2/df0/tutorial_js_table_of_contents_imgproc.html
+
+HaarTraining:
+https://gigadom.in/2011/10/12/hand-detection-through-haartraining-a-hands-on-approach/
+https://gigadom.in/2011/10/07/opencv-haartraining-and-all-that-jazz/
+
+
+

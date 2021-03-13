@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Hello OpenCV.js</title>
+    </head>
+
+    <body>
+        <h2>Hello OpenCV.js</h2>
+        <p id="status">OpenCV.js is loading...</p>
+
+        <div>
+            <div class="inputoutput">
+                <img id="imageSrc" alt="No Image" />
+                <div class="caption">imageSrc <input type="file" id="fileInput" name="file" /></div>
+            </div>
+            <div class="inputoutput">
+                <canvas id="canvasOutput"></canvas>
+                <div class="caption">canvasOutput</div>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            let imgElement = document.getElementById('imageSrc');
+            let inputElement = document.getElementById('fileInput');
+
+            inputElement.addEventListener('change', (e) => {
+                imgElement.src = URL.createObjectURL(e.target.files[0]);
+            }, false);
+
+            imgElement.onload = function () {
+                let srcMat = cv.imread(imgElement);
+                let row = 1, col = 1;
+                if (srcMat.isContinuous()) {
+                    let R = srcMat.data[row * srcMat.cols * srcMat.channels() + col * srcMat.channels()];
+                    let G = srcMat.data[row * srcMat.cols * srcMat.channels() + col * srcMat.channels() + 1];
+                    let B = srcMat.data[row * srcMat.cols * srcMat.channels() + col * srcMat.channels() + 2];
+                    let A = srcMat.data[row * srcMat.cols * srcMat.channels() + col * srcMat.channels() + 3];
+                    console.log(" R: ",R);
+                    console.log(" G: ",G);
+                    console.log(" B: ",B);
+                    console.log(" A: ",A);
+                }
+                console.log(srcMat.isContinuous());
+                console.log('image width: ' + srcMat.cols + '\n' +
+                            'image height: ' + srcMat.rows + '\n' +
+                            'image size: ' + srcMat.size().width + '*' + srcMat.size().height + '\n' +
+                            'image depth: ' + srcMat.depth() + '\n' +
+                            'image channels ' + srcMat.channels() + '\n' +
+                            'image type: ' + srcMat.type() + '\n');
+
+                let displayMat = srcMat.clone();
+                let circlesMat = new cv.Mat();
+
+                cv.cvtColor(srcMat, srcMat, cv.COLOR_RGBA2GRAY);
+
+                cv.HoughCircles(srcMat, circlesMat, cv.HOUGH_GRADIENT, 1, 45, 75, 40, 0, 0);
+                console.log('circlesMat : ',circlesMat);
+                for (let i = 0; i < circlesMat.cols; ++i) {
+                    let x = circlesMat.data32F[i * 3];
+                    let y = circlesMat.data32F[i * 3 + 1];
+                    let radius = circlesMat.data32F[i * 3 + 2];
+                    let center = new cv.Point(x, y);
+
+                    // draw circles
+                    cv.circle(displayMat, center, radius, [0, 0, 0, 255], 3);
+                }
+
+                cv.imshow('canvasOutput', displayMat);
+
+                srcMat.delete();
+                displayMat.delete();
+                // circlesMat.delete();
+            };
+
+            function onOpenCvReady() {
+                document.getElementById('status').innerHTML = 'OpenCV.js is ready.';
+            }
+        </script>
+        <script async src="./lib/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
+    </body>
+</html>

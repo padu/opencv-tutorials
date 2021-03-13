@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Hello OpenCV.js</title>
+        <style>
+            #imageSrc {
+                width: 400px;
+                height: 400px;
+                object-fit: contain;
+            }
+        </style>
+    </head>
+    <body>
+        <h2>Hello OpenCV.js</h2>
+        <p id="status">OpenCV.js is loading...</p>
+        <div>
+            <div class="inputoutput">
+                <img id="imageSrc" alt="No Image" />
+                <div class="caption">imageSrc <input type="file" id="fileInput" name="file" /></div>
+            </div>
+            <div class="inputoutput">
+                <canvas id="canvasOutput"></canvas>
+                <div class="caption">canvasOutput</div>
+            </div>
+        </div>
+        <script type="text/javascript">
+            let imgElement = document.getElementById('imageSrc');
+            let inputElement = document.getElementById('fileInput');
+
+            inputElement.addEventListener('change', (e) => {
+                imgElement.src = URL.createObjectURL(e.target.files[0]);
+            }, false);
+
+            imgElement.onload = function () {
+                let src = cv.imread(imgElement);
+                let gray = new cv.Mat();
+
+                cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
+
+                let hands = new cv.RectVector();
+                let handCascade = new cv.CascadeClassifier();
+
+                let utils = new Utils('errorMessage'); //use utils class
+                let handCascadeFile = 'aGest.xml'; // path to xml
+
+                // use createFileFromUrl to "pre-build" the xml
+                utils.createFileFromUrl(handCascadeFile, handCascadeFile, () => {
+                    handCascade.load(handCascadeFile); // in the callback, load the cascade from file 
+                    detectionLogic();
+                });
+
+                // load pre-trained classifiers
+                //faceCascade.load('haarcascade_frontalface_default.xml');
+                //eyeCascade.load('haarcascade_eye.xml');
+
+                const detectionLogic = () => {
+                    // detect hands
+                    let msize = new cv.Size(0, 0);
+                    handCascade.detectMultiScale(gray, hands, 1.1, 3, 0, msize, msize);
+                    for (let i = 0; i < hands.size(); ++i) {
+                        let roiGray = gray.roi(hands.get(i));
+                        let roiSrc = src.roi(hands.get(i));
+                        let point1 = new cv.Point(hands.get(i).x, hands.get(i).y);
+                        let point2 = new cv.Point(hands.get(i).x + hands.get(i).width, hands.get(i).y + hands.get(i).height);
+                        cv.rectangle(src, point1, point2, [255, 0, 0, 255]);
+                        // detect hands ROI
+                        roiGray.delete(); roiSrc.delete();
+                    }
+                    cv.imshow('canvasOutput', src);
+                    src.delete(); gray.delete(); handCascade.delete();
+                    hands.delete();
+                }
+            }
+
+            function onOpenCvReady() {
+                document.getElementById('status').innerHTML = 'OpenCV.js is ready.';
+
+            }
+        </script>
+        <script async src="./lib/utils.js" type="text/javascript"></script>
+        <script async src="./lib/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
+    </body>
+</html>
